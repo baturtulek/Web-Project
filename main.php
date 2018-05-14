@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'db.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,6 +14,9 @@ session_start();
 
         <!-- Latest compiled JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- Latest w3 CSS library -->
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <title></title>
@@ -64,12 +68,19 @@ session_start();
                 <?= (isset($_SESSION["user"])) ? "" : "<a href = 'register.php'><input type = 'button' name = 'register' class='btn btn-primary' value = 'Register'></a>"?>
             </td>
             <td>
-                <a href = 'myCart.php'><img src = 'img/cart.jpg' width=35></a>
-                <?= isset($_SESSION["user"]) ? "<a href = 'logout.php'><input type = 'button' name = 'logout' value = 'Logout'></a>" : ""?>
-                <?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'addProduct.php'><input type = 'button' name = 'admin' value = 'Add Product'></a>" : ""?>
-                <?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'selectPromotional.php'><input type = 'button' name = 'addPromo' value = 'Select Promotional'></a>" : ""?>
-                <?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'addUser.php'><input type = 'button' name = 'addUser' value = 'Add User'></a>" : ""?>
-
+                <a href = 'myCart.php'><img src = 'img/cart.jpg' width=40 title="My Cart"></a>
+            </td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-success" type="button" data-toggle="dropdown">Panel<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><?= isset($_SESSION["user"]) ? "<a href = 'logout.php'>Logout</a>" : ""?></li>
+                        <li><?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'addProduct.php'>Add Product</a>" : ""?></li>
+                        <li> <?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'selectPromotional.php'>Select Promotional</a>" : ""?></li>
+                        <li> <?= (isset($_SESSION["user"]) && $_SESSION["user"]["role"] == 2) ? "<a href = 'addUser.php'>Add User</a>" : ""?></li>
+                
+                    </ul>
+                </div>
             </td>
         </tr>
     </table>
@@ -84,7 +95,79 @@ session_start();
                 <li><a href = "products.php?category=book-film">Book and Film</a></li>
             </ul>
         </div>
-        
     </nav>
+    <div class="w3-content w3-display-container">
+    <?php 
+    try{
+        $sql4 = "select * from proproducts"; 
+        $stmt = $db->prepare($sql4);
+        $stmt->execute();
+        $products = $stmt->fetch(PDO::FETCH_ASSOC);
+        var_dump($products);
+        $pros = explode(",", $products['pid']);
+        var_dump($pros);
+        //$sql5 = "select * from products where id = ?";
+        //$stmt3 = $db->prepare($sql5);
+        //var_dump($stmt3);
+        //var_dump($pros);
+        //$first[] = $pros[0];
+       /* foreach($pros as $item[]){
+            $stmt3->execute($item);
+            $pro1 = $stmt3->fetch(PDO::FETCH_ASSOC);
+            $name = $pro1["pimg"];
+            echo "<img class='mySlides' src='img/{$name}' style='width:100%'>";
+        }
+        */
+        for($i = 0; $i < sizeof($pros); $i++){
+            $sql5 = "select * from products where id = ?";
+            $stmt3 = $db->prepare($sql5);
+            $item[$i][] = $pros[$i];
+            $stmt3->execute($item[$i]);
+            $pro = $stmt3->fetch(PDO::FETCH_ASSOC);
+            $name = $pro["pimg"];
+            echo "<img class='mySlides' src='img/{$name}' style='width:100%'>";
+
+        }
+        //var_dump($first);
+        //$stmt3->execute($first);
+        //var_dump( $stmt3->execute($first));
+        //$pro1 = $stmt3->fetch(PDO::FETCH_ASSOC);
+        //var_dump($pro1);
+        //$name = $pro1["pimg"];
+        //echo "<img class='mySlides' src='img/{$name}' style='width:100%'>";
+    }catch(Exception $ex){
+        echo "<p>query Error!".$ex->getMessage()."</p>";
+    }
+  
+     ?>
+  <img class="mySlides" src="img_lights.jpg" style="width:100%">
+  <img class="mySlides" src="img_mountains.jpg" sstyle="width:100%">
+  <img class="mySlides" src="img_forest.jpg" style="width:100%">
+
+  <button class="w3-button w3-black w3-display-left" onclick="plusDivs(-1)">&#10094;</button>
+  <button class="w3-button w3-black w3-display-right" onclick="plusDivs(1)">&#10095;</button>
+</div>
+
+
+<script>
+var slideIndex = 1;
+showDivs(slideIndex);
+
+function plusDivs(n) {
+  showDivs(slideIndex += n);
+}
+
+function showDivs(n) {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  if (n > x.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = x.length}
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";  
+  }
+  x[slideIndex-1].style.display = "block";  
+}
+</script>
+
 </body>
 </html>
